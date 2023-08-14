@@ -1,0 +1,86 @@
+---
+// login
+// The auth logic is executed on the client
+
+import Nav from '../components/nav.astro';
+import Layout from '../components/layout.astro'
+
+import { supabase } from '../utils/supabaseClient.ts'
+
+// in casethe user is already logged in we redirect to profile page
+const refreshToken = Astro.cookies.get('my-refresh-token')?.value
+const accessToken = Astro.cookies.get('my-access-token')?.value
+
+try {
+    if (refreshToken && accessToken) {
+        await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          auth: { persistSession: false },
+        })
+    
+        // we assume that if we're able to get a session the user is already logged in
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (data && !error) {
+            return Astro.redirect('/')
+        }
+    }
+}
+catch (e) {
+    console.error(e)
+}
+---
+
+<Layout title='login'>
+  <Nav activeUrl='login' />
+  <p class="description">Sign in via magic link with your email below</p>
+  <form class="form-widget">
+    <label for="email">Email:</label>
+    <input
+        id="email"
+        name="email"
+        class="inputField"
+        type="email"
+        placeholder="Your email"
+    />
+    <button type="submit" aria-live="polite">
+      <span>Send magic link</span>
+    </button>
+  </form>
+</Layout>
+
+<script>
+import { supabase } from '../utils/supabaseClient.ts'
+
+const form = document.querySelector('.form-widget')
+const submitBtn = document.querySelector('.form-widget button')
+form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target);
+    const email = formData.get('email')
+    if (email) {
+        try {
+          console.log('login')
+          submitBtn.textContent = 'Loading'
+          const { error } = await supabase.auth.signInWithOtp({ email })
+          if (error) throw error
+          alert('Check your email for the login link!')
+        } catch (error) {
+          if (error instanceof Error) {
+            alert(error.message)
+          }
+        } finally {
+          submitBtn.textContent = 'Send magic link'
+        }
+    }
+})
+</script>
+
+<style>
+form {
+    display: flex;
+    gap: 2rem;
+    align-items: center
+}
+</style>

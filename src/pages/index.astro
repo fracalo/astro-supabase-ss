@@ -1,15 +1,48 @@
 ---
+import Layout from '../components/layout.astro'
+import Nav from '../components/nav.astro'
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+
+<Layout title='home'>
+	<h1>Supabase + <span class='text-gradient'>Astro</span> = ❤️  </h1>
+    <p> This is a basic astro template with supabase SSR integration. </p>
+    <p> 
+        The auth flow is made on the client,
+        tokens are then passed to the server through cookies,
+        the authentication for private pages (only the profile page in this example) is performed on the server.
+    </p>
+    <p>NB: This template is an opinionated take for supabse integration, any feedback is welcome!</p>
+    <hr>
+    <p>it is made of 3 pages:</p>
+    <ul>
+        <li>home (current page): which has no authentication requirements.</li>
+        <li>profile: reachable only if authenticated, otherwise the user will be redirected to <a href="login">login</a>.</li>
+        <li>login: if authentication is already in place it will redirect to <a href="profile">profile</a>.</li>
+    </ul>
+    <Nav activeUrl={'home'}/>
+</Layout>
+
+<style>
+	h1 {
+		font-size: 4rem;
+		font-weight: 700;
+		line-height: 1;
+		text-align: center;
+		margin-bottom: 1em;
+	}
+	.text-gradient {
+		background-image: linear-gradient(45deg, rgb(136, 58, 234), rgb(224, 202, 250) 30%, white 60%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-size: 400%;
+		background-position: 0%;
+	}
+    ul {
+        margin-bottom: 5rem
+    }
+    a {
+        color: rgb(224, 102, 250);
+    }
+
+</style>

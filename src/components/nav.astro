@@ -1,0 +1,50 @@
+---
+import NavItem from './nav-item.astro'
+
+interface Props {
+	activeUrl: string;
+}
+
+const { activeUrl } = Astro.props
+const pages = ['home', 'login', 'profile']
+
+---
+<nav>
+    { 
+        pages.map(route => 
+            <a class:list={[{'active':  activeUrl === route }]} href={`/${route === 'home' ? '' : route}`}>
+                {route}
+            </a>
+    )}
+</nav>
+<style>
+    nav {
+		margin: auto;
+		padding: 1rem;
+		width: 800px;
+		max-width: calc(100% - 2rem);
+		font-size: 20px;
+		line-height: 1.6;
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-bottom: 3rem;
+        border-radius: .5rem;
+        border: 3px dotted #bdb
+    }
+    a {
+        color: #bdb;
+        font-weight: 700;
+        transition: .2s all;
+        border: 3px solid transparent;
+    }
+    a:hover {
+		color: lime;
+    }
+    a.active {
+        border-bottom-color: #bdb;
+    }
+    a.active:hover {
+        border-bottom-color: lime;
+    }
+</style>

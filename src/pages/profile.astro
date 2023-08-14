@@ -1,0 +1,57 @@
+---
+import Layout from '../components/Layout.astro';
+import Nav from '../components/Nav.astro';
+import { supabase } from '../utils/supabaseClient'
+
+// the profile page is private 
+const refreshToken = Astro.cookies.get('my-refresh-token')?.value
+const accessToken = Astro.cookies.get('my-access-token')?.value
+
+
+const userData: {username?: string, website?: string} = {}
+
+try {
+    if (!refreshToken) throw 'No refreshToken'
+    if (!accessToken) throw 'No accessToken'
+    
+    await supabase.auth.setSession({
+      refresh_token: refreshToken,
+      access_token: accessToken,
+      auth: { persistSession: false },
+    })
+    
+      
+    // @todo what info can i expect in a supa session
+    //  const sessionReq = await supabase.auth.getSession()
+    //  session = sessionReq?.data?.session 
+    //  console.log(sessionReq)
+    
+    const userReq = await supabase.auth.getUser(accessToken);
+    const {data: { user }} = userReq
+    
+    if (!user) throw 'No user'
+    let { data, error, status } = await supabase
+            .from('profiles')
+            .select(`username, website, avatar_url`)
+            .eq('id', user.id)
+            .single()
+    
+    if (error) throw error
+
+    userData.username = data.username;
+    userData.website = data.website;
+
+} catch(e) {
+    console.error(e)
+    return Astro.redirect('/')
+}
+
+---
+
+<Layout title="Profile">
+    <Nav activeUrl='profile' />
+
+    <h2> Profile </h2>
+    <div id='username' class='text-white'> username: { userData.username }<span/></div>
+    <div id='website' class='text-white'> website: { userData.website } <span/></div>
+</Layout>

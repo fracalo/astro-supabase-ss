@@ -1,0 +1,56 @@
+---
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description">
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Supabase Astro Serverside auth - {title}</title>
+	</head>
+	<body>
+        <main>
+		    <slot />
+        </main>
+	</body>
+</html>
+
+<style is:global>
+	html {
+		font-family: system-ui, sans-serif;
+		background: #13151A;
+		background-size: 224px;
+	}
+	main {
+		margin: auto;
+		padding: 1rem;
+		width: 800px;
+		max-width: calc(100% - 2rem);
+		color: white;
+		font-size: 20px;
+		line-height: 1.6;
+	}
+    a, a:-webkit-any-link {
+        text-decoration: none;
+    }
+</style>
+<script>
+    import {supabase} from '../utils/supabaseClient'
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log({event, session})
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        // delete cookies on sign out
+        const expires = new Date(0).toUTCString()
+        document.cookie = `my-access-token=; path=/; expires=${expires}; SameSite=Lax; secure`
+        document.cookie = `my-refresh-token=; path=/; expires=${expires}; SameSite=Lax; secure`
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        const maxAge = 100 * 365 * 24 * 60 * 60 // 100 years, never expires
+        document.cookie = `my-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+        document.cookie = `my-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+      }
+    })
+</script>

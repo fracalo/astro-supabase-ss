@@ -10,6 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^5.3.3",
+    "@supabase/supabase-js": "^2.32.0",
     "astro": "^2.10.7"
   }
 }
