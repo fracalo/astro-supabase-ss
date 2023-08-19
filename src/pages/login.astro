@@ -4,12 +4,13 @@
 
 import Nav from '../components/nav.astro';
 import Layout from '../components/layout.astro'
-
+import { accessTokenName, refreshTokenName } from '../utils/config'
 import { supabase } from '../utils/supabaseClient.ts'
 
-// in casethe user is already logged in we redirect to profile page
-const refreshToken = Astro.cookies.get('my-refresh-token')?.value
-const accessToken = Astro.cookies.get('my-access-token')?.value
+
+// in case the user is already logged in we redirect to profile page
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value
+const accessToken = Astro.cookies.get(accessTokenName)?.value
 
 try {
     if (refreshToken && accessToken) {

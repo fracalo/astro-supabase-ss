@@ -2,11 +2,11 @@
 import Layout from '../components/Layout.astro';
 import Nav from '../components/Nav.astro';
 import { supabase } from '../utils/supabaseClient'
+import { accessTokenName, refreshTokenName } from '../utils/config'
 
 // the profile page is private 
-const refreshToken = Astro.cookies.get('my-refresh-token')?.value
-const accessToken = Astro.cookies.get('my-access-token')?.value
-
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value
+const accessToken = Astro.cookies.get(accessTokenName)?.value
 
 const userData: {username?: string, website?: string} = {}
 

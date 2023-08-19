@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+import { supabaseUrl, supabaseAnonKey} from './config'
 
 // to be used on client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
