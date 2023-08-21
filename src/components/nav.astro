@@ -1,12 +1,13 @@
 ---
-import NavItem from './nav-item.astro'
-
 interface Props {
-	activeUrl: string;
+    activeUrl: string;
+    isLoggedIn: boolean;
 }
 
-const { activeUrl } = Astro.props
-const pages = ['home', 'login', 'profile']
+import NavItem from './nav-item.astro'
+
+const { activeUrl, isLoggedIn } = Astro.props
+const pages = isLoggedIn ? ['home', 'profile'] : ['home', 'login']
 
 ---
 <nav>
@@ -16,35 +17,61 @@ const pages = ['home', 'login', 'profile']
                 {route}
             </a>
     )}
+    { isLoggedIn && <div class='logout-action'>logout</div> }
 </nav>
 <style>
     nav {
-		margin: auto;
-		padding: 1rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
-		font-size: 20px;
-		line-height: 1.6;
+	    margin: auto;
+	    padding: 1rem;
+	    width: 800px;
+	    font-size: 20px;
+	    line-height: 1.6;
         display: flex;
         gap: 2rem;
-        justify-content: center;
-        margin-bottom: 3rem;
+        margin-bottom: 4rem;
         border-radius: .5rem;
-        border: 3px dotted #bdb
+        border: 3px dotted #bdb;
+        box-sizing: border-box;
     }
-    a {
+    nav a, nav a:-webkit-any-link {
         color: #bdb;
         font-weight: 700;
         transition: .2s all;
         border: 3px solid transparent;
     }
-    a:hover {
+    nav a:hover {
 		color: lime;
     }
-    a.active {
+    nav a.active {
         border-bottom-color: #bdb;
     }
-    a.active:hover {
+    nav a.active:hover {
         border-bottom-color: lime;
     }
+    .logout-action {
+        margin-left: auto;
+        font-weight: 700;
+        color: #ddd;
+        border: 3px solid #ddd;
+        padding: 0 1rem;
+        border-radius: .5rem;
+        transition: .2s all;
+        cursor: pointer;
+    }
+    .logout-action:hover {
+        border-color: lime;
+        color: lime;
+    }
 </style>
+
+<script>
+import {supabase} from '../utils/supabaseClient'
+// we add the logout logic here
+
+const logoutAction = document.querySelector('.logout-action')
+if (logoutAction) {
+    logoutAction.addEventListener('click', (e) => {
+        supabase.auth.signOut()
+    })
+}
+</script>

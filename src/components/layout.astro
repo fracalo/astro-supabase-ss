@@ -1,5 +1,10 @@
 ---
-const { title } = Astro.props;
+interface Props {
+    title: string;
+    isLoggedIn: boolean;
+}
+
+const { title, isLoggedIn } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -12,7 +17,7 @@ const { title } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>Supabase Astro Serverside auth - {title}</title>
 	</head>
-	<body>
+	<body data-logged-in={isLoggedIn}>
         <main>
 		    <slot />
         </main>
@@ -25,9 +30,13 @@ const { title } = Astro.props;
 		background: #13151A;
 		background-size: 224px;
 	}
+    html::-webkit-scrollbar {
+        display: none;
+    }
 	main {
 		margin: auto;
 		padding: 1rem;
+		padding-bottom: 4rem;
 		width: 800px;
 		max-width: calc(100% - 2rem);
 		color: white;
@@ -36,10 +45,15 @@ const { title } = Astro.props;
 	}
     a, a:-webkit-any-link {
         text-decoration: none;
+        color: rgb(224, 102, 250);
     }
 </style>
 <script>
     import {supabase} from '../utils/supabaseClient'
+    import {accessTokenName, refreshTokenName} from '../utils/config'
+
+    const isLoggedIn = document.body.hasAttribute('data-logged-in');
+
     supabase.auth.onAuthStateChange((event, session) => {
       console.log({event, session})
       if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
@@ -47,10 +61,17 @@ const { title } = Astro.props;
         const expires = new Date(0).toUTCString()
         document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`
         document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`
+        if (isLoggedIn) {
+            location.reload()
+        }
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         const maxAge = 100 * 365 * 24 * 60 * 60 // 100 years, never expires
         document.cookie = `${accessTokenName}=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
         document.cookie = `${refreshTokenName}=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+        if (!isLoggedIn) {
+            location.reload()
+        }
       }
     })
+
 </script>

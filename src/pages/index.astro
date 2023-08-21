@@ -1,34 +1,30 @@
 ---
 import Layout from '../components/layout.astro'
 import Nav from '../components/nav.astro'
+import * as readme from '../../readme.md'
+import { getUser } from '../utils/supabaseClient'
+import { accessTokenName, refreshTokenName } from '../utils/config'
+
+// we use README.md as content of the homepage
+const readmeCompiledContent = readme.compiledContent()
+
+const accessToken = Astro.cookies.get(accessTokenName)?.value
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value
+
+const userData = await getUser(accessToken, refreshToken)
+const isLoggedIn = !!userData
 ---
 
-
-<Layout title='home'>
-	<h1>Supabase + <span class='text-gradient'>Astro</span> = ❤️  </h1>
-    <p> This is a basic astro template with supabase SSR integration. </p>
-    <p> 
-        The auth flow is made on the client,
-        tokens are then passed to the server through cookies,
-        the authentication for private pages (only the profile page in this example) is performed on the server.
-    </p>
-    <p>NB: This template is an opinionated take for supabse integration, any feedback is welcome!</p>
-    <hr>
-    <p>it is made of 3 pages:</p>
-    <ul>
-        <li>home (current page): which has no authentication requirements.</li>
-        <li>profile: reachable only if authenticated, otherwise the user will be redirected to <a href="login">login</a>.</li>
-        <li>login: if authentication is already in place it will redirect to <a href="profile">profile</a>.</li>
-    </ul>
-    <Nav activeUrl={'home'}/>
+<Layout title='home' isLoggedIn={isLoggedIn}>
+    <Nav activeUrl={'home'} isLoggedIn={isLoggedIn}/>
+    <div set:html={ readmeCompiledContent } />
 </Layout>
 
-<style>
+<style is:global>
 	h1 {
 		font-size: 4rem;
 		font-weight: 700;
 		line-height: 1;
-		text-align: center;
 		margin-bottom: 1em;
 	}
 	.text-gradient {
@@ -38,11 +34,5 @@ import Nav from '../components/nav.astro'
 		background-size: 400%;
 		background-position: 0%;
 	}
-    ul {
-        margin-bottom: 5rem
-    }
-    a {
-        color: rgb(224, 102, 250);
-    }
 
 </style>

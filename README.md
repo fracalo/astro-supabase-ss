@@ -1,47 +1,25 @@
-# Astro Starter Kit: Minimal
 
-```
-npm create astro@latest -- --template minimal
-```
+<h1 style='text-align: center'>Supabase + <span class='text-gradient'>Astro</span> = ❤️  </h1>
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+This is a basic astro template with supabase SSR integration.  
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The auth flow is made on the client,  
+tokens are then passed to the server through cookies,  
+the authentication for private pages (only the profile page in this example) is performed on the server.
 
-## 🚀 Project Structure
+NB: This template is an opinionated take for supabse integration, any feedback is welcome!
 
-Inside of your Astro project, you'll see the following folders and files:
+## Prerequisites
+The template builds on top of Astro's default blank theme, the structure should be self explanatory but if you have any doubts you'll probably find the answersa in the <a href='https://docs.astro.build/en/getting-started/'>astro docs.</a>
 
-```
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+It has been built using the <a href='https://supabase.com/docs/guides/cli/local-development' >supabase local development setup</a>,  
+if you want to see something interisting this is a requirement 😊 .
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+An boilerplate .env file with placeholders is provided, you'll need to add you supabase keys there.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+---
+it is made of 3 pages:
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:3000`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+ - home (current page): which has no authentication requirements.
+ - profile: reachable only if authenticated, otherwise the user will be redirected to <a href="login">login</a>.
+ - login: if authentication is already in place it will redirect to <a href="profile">profile</a>.

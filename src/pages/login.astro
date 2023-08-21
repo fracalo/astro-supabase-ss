@@ -1,40 +1,24 @@
 ---
 // login
-// The auth logic is executed on the client
 
 import Nav from '../components/nav.astro';
 import Layout from '../components/layout.astro'
 import { accessTokenName, refreshTokenName } from '../utils/config'
-import { supabase } from '../utils/supabaseClient.ts'
+import { getUser } from '../utils/supabaseClient.ts'
 
+const accessToken = Astro.cookies.get(accessTokenName)?.value
+const refreshToken = Astro.cookies.get(refreshTokenName)?.value
 
 // in case the user is already logged in we redirect to profile page
-const refreshToken = Astro.cookies.get(refreshTokenName)?.value
-const accessToken = Astro.cookies.get(accessTokenName)?.value
+const userData = await getUser(accessToken, refreshToken)
+if (userData) {
+  return Astro.redirect('/')
+}
 
-try {
-    if (refreshToken && accessToken) {
-        await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          auth: { persistSession: false },
-        })
-    
-        // we assume that if we're able to get a session the user is already logged in
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (data && !error) {
-            return Astro.redirect('/')
-        }
-    }
-}
-catch (e) {
-    console.error(e)
-}
 ---
 
-<Layout title='login'>
-  <Nav activeUrl='login' />
+<Layout title='login' isLoggedIn={false}>
+  <Nav activeUrl='login' isLoggedIn={false} />
   <p class="description">Sign in via magic link with your email below</p>
   <form class="form-widget">
     <label for="email">Email:</label>
@@ -54,6 +38,9 @@ catch (e) {
 <script>
 import { supabase } from '../utils/supabaseClient.ts'
 
+// The auth logic is executed on the client,
+// tokens are copied in cookies, which are then accessed on the server
+
 const form = document.querySelector('.form-widget')
 const submitBtn = document.querySelector('.form-widget button')
 form.addEventListener('submit', async (e) => {
@@ -62,7 +49,6 @@ form.addEventListener('submit', async (e) => {
     const email = formData.get('email')
     if (email) {
         try {
-          console.log('login')
           submitBtn.textContent = 'Loading'
           const { error } = await supabase.auth.signInWithOtp({ email })
           if (error) throw error
