@@ -1,25 +1,127 @@
 ---
-import Layout from '../components/Layout.astro';
-import Nav from '../components/Nav.astro';
-import { getUser } from '../utils/supabaseClient'
+import Layout from '../components/layout.astro'
+import Nav from '../components/nav.astro'
+import { getUser } from '../utils/supabaseServer'
 import { accessTokenName, refreshTokenName } from '../utils/config'
 
 const accessToken = Astro.cookies.get(accessTokenName)?.value
 const refreshToken = Astro.cookies.get(refreshTokenName)?.value
 
-const userData = await getUser(accessToken, refreshToken)
-console.log('userData', userData)
+const userData = await getUser({ accessToken, refreshToken })
 
 // the profile page is private 
 if (!userData) {
-    return Astro.redirect('/')
+    return Astro.redirect('/login')
 }
+
+
 ---
 
 <Layout title="Profile" isLoggedIn={true}>
     <Nav activeUrl='profile' isLoggedIn={true} />
 
     <h2> Profile </h2>
-    <div id='username' class='text-white'> username: { userData.username }<span/></div>
-    <div id='website' class='text-white'> website: { userData.website } <span/></div>
+    <form>
+        <input type='hidden' id='id' name='id' value={ userData.id } >
+        <input type='hidden' id='avatar_url' name='avatar_url' value={ userData.avatar_url } >
+        <img id='avatar-image' />
+
+        <div>
+            <input
+                type="file"
+                id="avatar"
+                accept="image/*"
+            />
+        </div>
+
+         <div class='input-wrap'>
+             <label for='email'>email:</label>
+             <input disabled id='email' name='email' value={ userData.email } >    
+         </div>
+         <div class='input-wrap'>
+             <label for='username'>username:</label>
+             <input id='username' name='username' value={ userData.username } >
+         </div>
+         <div class='input-wrap'>
+             <label for='website'>website:</label>
+             <input id='website' name='website' value={ userData.website } >
+         </div>
+        <button>Submit</button>
+    </form>
 </Layout>
+<style>
+.input-wrap {
+    display: flex;
+    gap: .5rem;
+    padding: .3rem 0;
+    align-items: center;
+    width: 30vw;
+    flex: 1
+}
+input{
+    height: 1rem;
+    flex: 1
+}
+img {
+    width: 40%
+}
+#avatar {
+    height: 1.6rem;
+}
+
+</style>
+<script>
+import { supabase } from '../utils/supabaseBrowser'
+const form = document.querySelector('form') as HTMLFormElement
+const avatarImg = document.querySelector('#avatar-image') as HTMLImageElement
+const avatarUrl = document.querySelector('#avatar_url') as HTMLInputElement
+const avatarInput = document.querySelector('#avatar')  as HTMLInputElement
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const updates = Object.fromEntries(new FormData(e.target as HTMLFormElement).entries())
+
+    const res = await supabase.from('profiles').upsert(updates)
+    const {error} = res
+
+    if (error) {
+        alert(`Error ${JSON.stringify(error, null, 2)}`)
+    }
+
+})
+
+const showImg = async (path: string) => {
+    const { data, error } = await supabase.storage.from('avatars').download(path)
+    if (error) {
+        alert(`Error ${JSON.stringify(error, null, 2)}`)
+    }
+    const downloadUrl = URL.createObjectURL(data as Blob)
+    avatarImg.src = downloadUrl
+}
+// show image on start up if avatar_url is defined
+if (avatarUrl.value) {
+    showImg(avatarUrl.value)
+}
+
+avatarInput.addEventListener('change', async (e) => {
+    const [file] = (e.target as HTMLInputElement).files ?? []
+    if (!file){
+        alert('No file available')
+        return
+    }
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${URL.createObjectURL(new Blob([])).slice(-36)}.${fileExt}`
+    let uploadRes = await supabase.storage.from('avatars').upload(fileName, file)
+    const { error, data } = uploadRes
+    if (error) {
+        alert(`Error ${JSON.stringify(error, null, 2)}`)
+    }
+    if (data) {
+        const { path } = data
+        showImg(path)
+        avatarUrl.value = path
+    }
+    
+})
+</script>

@@ -1,5 +1,5 @@
 
-export const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+export const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
 export const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 export const cookiePrefix = import.meta.env.PUBLIC_SUPABASE_COOKIE_PRE
 

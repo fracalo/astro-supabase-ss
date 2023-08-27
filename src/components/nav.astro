@@ -4,8 +4,6 @@ interface Props {
     isLoggedIn: boolean;
 }
 
-import NavItem from './nav-item.astro'
-
 const { activeUrl, isLoggedIn } = Astro.props
 const pages = isLoggedIn ? ['home', 'profile'] : ['home', 'login']
 
@@ -65,12 +63,12 @@ const pages = isLoggedIn ? ['home', 'profile'] : ['home', 'login']
 </style>
 
 <script>
-import {supabase} from '../utils/supabaseClient'
+import {supabase} from '../utils/supabaseBrowser'
 // we add the logout logic here
 
 const logoutAction = document.querySelector('.logout-action')
 if (logoutAction) {
-    logoutAction.addEventListener('click', (e) => {
+    logoutAction.addEventListener('click', () => {
         supabase.auth.signOut()
     })
 }

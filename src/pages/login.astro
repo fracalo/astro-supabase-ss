@@ -1,16 +1,14 @@
 ---
-// login
-
-import Nav from '../components/nav.astro';
 import Layout from '../components/layout.astro'
+import Nav from '../components/nav.astro'
 import { accessTokenName, refreshTokenName } from '../utils/config'
-import { getUser } from '../utils/supabaseClient.ts'
+import { getUser } from '../utils/supabaseServer'
 
 const accessToken = Astro.cookies.get(accessTokenName)?.value
 const refreshToken = Astro.cookies.get(refreshTokenName)?.value
 
 // in case the user is already logged in we redirect to profile page
-const userData = await getUser(accessToken, refreshToken)
+const userData = await getUser({ accessToken, refreshToken })
 if (userData) {
   return Astro.redirect('/')
 }
@@ -36,20 +34,20 @@ if (userData) {
 </Layout>
 
 <script>
-import { supabase } from '../utils/supabaseClient.ts'
+import { supabase } from '../utils/supabaseBrowser'
 
 // The auth logic is executed on the client,
 // tokens are copied in cookies, which are then accessed on the server
 
 const form = document.querySelector('.form-widget')
 const submitBtn = document.querySelector('.form-widget button')
-form.addEventListener('submit', async (e) => {
+form!.addEventListener('submit', async (e) => {
     e.preventDefault()
-    const formData = new FormData(e.target);
-    const email = formData.get('email')
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email') as string
     if (email) {
         try {
-          submitBtn.textContent = 'Loading'
+          submitBtn!.textContent = 'Loading'
           const { error } = await supabase.auth.signInWithOtp({ email })
           if (error) throw error
           alert('Check your email for the login link!')
@@ -58,7 +56,7 @@ form.addEventListener('submit', async (e) => {
             alert(error.message)
           }
         } finally {
-          submitBtn.textContent = 'Send magic link'
+          submitBtn!.textContent = 'Send magic link'
         }
     }
 })

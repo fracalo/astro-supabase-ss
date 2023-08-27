@@ -49,14 +49,13 @@ const { title, isLoggedIn } = Astro.props;
     }
 </style>
 <script>
-    import {supabase} from '../utils/supabaseClient'
+    import {supabase} from '../utils/supabaseBrowser'
     import {accessTokenName, refreshTokenName} from '../utils/config'
 
     const isLoggedIn = document.body.hasAttribute('data-logged-in');
 
     supabase.auth.onAuthStateChange((event, session) => {
-      console.log({event, session})
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
         // delete cookies on sign out
         const expires = new Date(0).toUTCString()
         document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`
@@ -66,8 +65,8 @@ const { title, isLoggedIn } = Astro.props;
         }
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         const maxAge = 100 * 365 * 24 * 60 * 60 // 100 years, never expires
-        document.cookie = `${accessTokenName}=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
-        document.cookie = `${refreshTokenName}=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+        document.cookie = `${accessTokenName}=${session!.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+        document.cookie = `${refreshTokenName}=${session!.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
         if (!isLoggedIn) {
             location.reload()
         }
