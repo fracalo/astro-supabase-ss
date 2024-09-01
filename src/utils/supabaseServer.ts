@@ -32,7 +32,10 @@ export const getUser = async (arg: {
             .eq("id", user.id)
             .single()
         
-        if (error) throw error
+        if (error && error.code !== 'PGRST116') {
+            console.log('pgsql error:', error)
+            throw error
+        }
         const { id, email, phone } = user
         return {
             ...data,
