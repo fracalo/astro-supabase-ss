@@ -48,7 +48,12 @@ form!.addEventListener('submit', async (e) => {
     if (email) {
         try {
           submitBtn!.textContent = 'Loading'
-          const { error } = await supabase.auth.signInWithOtp({ email })
+            const { error } = await supabase.auth.signInWithOtp({ 
+                email,
+                  options: {
+                    emailRedirectTo: 'localhost:3000'
+                  }
+            })
           if (error) throw error
           alert('Check your email for the login link!')
         } catch (error) {
