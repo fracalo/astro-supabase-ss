@@ -35,6 +35,7 @@ if (userData) {
 
 <script>
 import { supabase } from '../utils/supabaseBrowser'
+import {appMailRedirects} from '../utils/config'
 
 // The auth logic is executed on the client,
 // tokens are copied in cookies, which are then accessed on the server
@@ -51,7 +52,7 @@ form!.addEventListener('submit', async (e) => {
             const { error } = await supabase.auth.signInWithOtp({ 
                 email,
                   options: {
-                    emailRedirectTo: 'localhost:3000'
+                    emailRedirectTo: appMailRedirects 
                   }
             })
           if (error) throw error
