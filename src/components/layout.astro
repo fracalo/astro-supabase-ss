@@ -7,70 +7,71 @@ interface Props {
 const { title, isLoggedIn } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description">
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Supabase Astro Serverside auth - {title}</title>
-	</head>
-	<body data-logged-in={isLoggedIn}>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Astro description" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Supabase Astro Serverside auth - {title}</title>
+    </head>
+    <body data-logged-in={isLoggedIn}>
         <main>
-		    <slot />
+            <slot />
         </main>
-	</body>
+    </body>
 </html>
 
 <style is:global>
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151A;
-		background-size: 224px;
-	}
+    html {
+        font-family: system-ui, sans-serif;
+        background: #13151a;
+        background-size: 224px;
+    }
     html::-webkit-scrollbar {
         display: none;
     }
-	main {
-		margin: auto;
-		padding: 1rem;
-		padding-bottom: 4rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
-		color: white;
-		font-size: 20px;
-		line-height: 1.6;
-	}
-    a, a:-webkit-any-link {
+    main {
+        margin: auto;
+        padding: 1rem;
+        padding-bottom: 4rem;
+        width: 800px;
+        max-width: calc(100% - 2rem);
+        color: white;
+        font-size: 20px;
+        line-height: 1.6;
+    }
+    a,
+    a:-webkit-any-link {
         text-decoration: none;
         color: rgb(224, 102, 250);
     }
 </style>
 <script>
-    import {supabase} from '../utils/supabaseBrowser'
-    import {accessTokenName, refreshTokenName} from '../utils/config'
+    import { supabase } from "../utils/supabaseBrowser";
+    import { accessTokenName, refreshTokenName } from "../utils/config";
 
-    const isLoggedIn = document.body.hasAttribute('data-logged-in');
+    const loggedInAttribute = document.body.getAttribute("data-logged-in");
+    const isLoggedIn = loggedInAttribute && loggedInAttribute !== "false";
 
     supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-        // delete cookies on sign out
-        const expires = new Date(0).toUTCString()
-        document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`
-        document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`
-        if (isLoggedIn) {
-            location.reload()
+        if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
+            // delete cookies on sign out
+            const expires = new Date(0).toUTCString();
+            document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
+            document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
+            if (isLoggedIn) {
+                location.reload();
+            }
+        } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+            const maxAge = 100 * 365 * 24 * 60 * 60; // 100 years, never expires
+            document.cookie = `${accessTokenName}=${session!.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+            document.cookie = `${refreshTokenName}=${session!.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+            if (!isLoggedIn) {
+                location.reload();
+            }
         }
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        const maxAge = 100 * 365 * 24 * 60 * 60 // 100 years, never expires
-        document.cookie = `${accessTokenName}=${session!.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
-        document.cookie = `${refreshTokenName}=${session!.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
-        if (!isLoggedIn) {
-            location.reload()
-        }
-      }
-    })
-
+    });
 </script>
