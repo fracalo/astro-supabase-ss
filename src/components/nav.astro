@@ -4,41 +4,46 @@ interface Props {
     isLoggedIn: boolean;
 }
 
-const { activeUrl, isLoggedIn } = Astro.props
-const pages = isLoggedIn ? ['home', 'profile'] : ['home', 'login']
-
+const { activeUrl, isLoggedIn } = Astro.props;
+const pages = isLoggedIn ? ["home", "profile"] : ["home", "login"];
 ---
+
 <nav>
-    { 
-        pages.map(route => 
-            <a class:list={[{'active':  activeUrl === route }]} href={`/${route === 'home' ? '' : route}`}>
+    {
+        pages.map((route) => (
+            <a
+                class:list={[{ active: activeUrl === route }]}
+                href={`/${route === "home" ? "" : route}`}
+            >
                 {route}
             </a>
-    )}
-    { isLoggedIn && <div class='logout-action'>logout</div> }
+        ))
+    }
+    {isLoggedIn && <div class="logout-action">logout</div>}
 </nav>
 <style>
     nav {
-	    margin: auto;
-	    padding: 1rem;
-	    width: 800px;
-	    font-size: 20px;
-	    line-height: 1.6;
+        margin: auto;
+        padding: 1rem;
+        width: 800px;
+        font-size: 20px;
+        line-height: 1.6;
         display: flex;
         gap: 2rem;
         margin-bottom: 4rem;
-        border-radius: .5rem;
+        border-radius: 0.5rem;
         border: 3px dotted #bdb;
         box-sizing: border-box;
     }
-    nav a, nav a:-webkit-any-link {
+    nav a,
+    nav a:-webkit-any-link {
         color: #bdb;
         font-weight: 700;
-        transition: .2s all;
+        transition: 0.2s all;
         border: 3px solid transparent;
     }
     nav a:hover {
-		color: lime;
+        color: lime;
     }
     nav a.active {
         border-bottom-color: #bdb;
@@ -52,8 +57,8 @@ const pages = isLoggedIn ? ['home', 'profile'] : ['home', 'login']
         color: #ddd;
         border: 3px solid #ddd;
         padding: 0 1rem;
-        border-radius: .5rem;
-        transition: .2s all;
+        border-radius: 0.5rem;
+        transition: 0.2s all;
         cursor: pointer;
     }
     .logout-action:hover {
@@ -63,13 +68,12 @@ const pages = isLoggedIn ? ['home', 'profile'] : ['home', 'login']
 </style>
 
 <script>
-import {supabase} from '../utils/supabaseBrowser'
-// we add the logout logic here
+    import { supabase } from "../utils/supabaseBrowser";
 
-const logoutAction = document.querySelector('.logout-action')
-if (logoutAction) {
-    logoutAction.addEventListener('click', () => {
-        supabase.auth.signOut()
-    })
-}
+    const logoutAction = document.querySelector(".logout-action");
+    if (logoutAction) {
+        logoutAction.addEventListener("click", () => {
+            supabase.auth.signOut();
+        });
+    }
 </script>
